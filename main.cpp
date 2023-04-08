@@ -1,15 +1,20 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 constexpr int BLOCK_SIZE = 50;
+constexpr int FALL_STEP = 1;
+constexpr int STEP = 50;
 
 class Block{
 public:
-    Block() : x(0), y(0){}
+    Block(unsigned int maxX, unsigned int maxY) : x(maxX/2 - BLOCK_SIZE), y(0), max_x(maxX), max_y(maxY){}
 
-    void moveRight(){x++;}
-    void moveLeft(){x--;}
-    void moveUp(){y--;}
-    void moveDown(){y++;}
+    void moveRight(){if(x + BLOCK_SIZE + STEP < max_x  && !reached_bottom) x+=STEP;}
+    void moveLeft(){if(x - STEP > 0 && !reached_bottom)x-=STEP;}
+    void moveUp(){if(y - STEP > 0) y-=STEP;}
+    void moveDown(){
+        if(y + BLOCK_SIZE + STEP < max_y) y+=FALL_STEP;
+        else reached_bottom = true;
+    }
 
     int getX() const{return x;}
     int getY(){return y;}
@@ -17,6 +22,9 @@ public:
 private:
     int x;
     int y;
+    unsigned int max_x;
+    unsigned int max_y;
+    bool reached_bottom;
 };
 
 void drawBlock(Block& block, sf::RenderWindow& window){
@@ -37,8 +45,14 @@ void drawBlock(Block& block, sf::RenderWindow& window){
 
 int main() {
     sf::RenderWindow window{sf::VideoMode::getDesktopMode(), "Simple Game"};
-    Block tester{};
     bool key_pressed =  false;
+
+    auto h = window.getSize().x;
+    auto w = window.getSize().y;
+
+    sf::Clock clock{};
+
+    Block tester{h,w};
 
     while(window.isOpen()){
         window.clear();
@@ -48,26 +62,20 @@ int main() {
                 window.close();
             }
         }
-        while (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !key_pressed)
-        {
-            tester.moveLeft();
-            key_pressed = true;
-        }
-        while (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && !key_pressed)
-        {
+        if(clock.getElapsedTime() > sf::milliseconds(5)){
             tester.moveDown();
+            clock.restart();
+        }
+        while (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+            if(!key_pressed) tester.moveLeft();
             key_pressed = true;
         }
-        while (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !key_pressed)
+        while (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
         {
-            tester.moveRight();
+            if(!key_pressed) tester.moveRight();
             key_pressed = true;
         }
-        while (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && !key_pressed)
-        {
-            tester.moveUp();
-            key_pressed = true;
-        }
+
         key_pressed = false;
 
         drawBlock(tester,window);
