@@ -1,6 +1,6 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
-constexpr int BLOCK_SIZE = 10;
+constexpr int BLOCK_SIZE = 50;
 
 class Block{
 public:
@@ -8,10 +8,10 @@ public:
 
     void moveRight(){x++;}
     void moveLeft(){x--;}
-    void moveUp(){y++;}
-    void moveDown(){y--;}
+    void moveUp(){y--;}
+    void moveDown(){y++;}
 
-    int getX(){return x;}
+    int getX() const{return x;}
     int getY(){return y;}
 
 private:
@@ -24,8 +24,13 @@ void drawBlock(Block& block, sf::RenderWindow& window){
 
     quad[0].position = sf::Vector2f(block.getX(), block.getY());
     quad[1].position = sf::Vector2f(block.getX() + BLOCK_SIZE, block.getY());
-    quad[2].position = sf::Vector2f(block.getX() + BLOCK_SIZE, block.getY() - BLOCK_SIZE);
-    quad[3].position = sf::Vector2f(block.getX(), block.getY() - BLOCK_SIZE);
+    quad[2].position = sf::Vector2f(block.getX() + BLOCK_SIZE, block.getY() + BLOCK_SIZE);
+    quad[3].position = sf::Vector2f(block.getX(), block.getY() + BLOCK_SIZE);
+
+    quad[0].color = sf::Color::Cyan;
+    quad[1].color = sf::Color::Cyan;
+    quad[2].color = sf::Color::Cyan;
+    quad[3].color = sf::Color::Cyan;
 
     window.draw(quad);
 }
@@ -66,6 +71,7 @@ int main() {
         key_pressed = false;
 
         drawBlock(tester,window);
+        window.display();
 
     }
     return 0;
